@@ -1,8 +1,11 @@
+
+import Link from "next/link";
 import MarqueeText from "react-marquee-text";
 import { getProducts } from "@/lib/api";
 
 interface Product {
   id: number;
+  slug: string;
   nameBn: string;
   categoryIcon: string;
   unit: string;
@@ -14,7 +17,10 @@ interface Product {
 }
 
 const toBn = (value: number | string) =>
-  String(value).replace(/\d/g, (d) => "০১২৩৪৫৬৭৮৯"[Number(d)]);
+  String(value).replace(
+    /\d/g,
+    (d) => "০১২৩৪৫৬৭৮৯"[Number(d)]
+  );
 
 const unitBn: Record<string, string> = {
   kg: "কেজি",
@@ -44,50 +50,50 @@ const PriceTicker = async () => {
   return (
     <div className="border-b border-gray-200 bg-white text-black">
       <div className="mx-auto flex max-w-7xl overflow-hidden">
-
         <MarqueeText
           className="py-3"
           duration={30}
           direction="right"
         >
           {products.map((product) => {
-            const { icon, color } = changeStyle[product.change.dir];
+            const { icon, color } =
+              changeStyle[product.change.dir];
 
             return (
-              <div
+              <Link
                 key={product.id}
-                className="flex items-center gap-3 border-r border-gray-200 px-6"
+                href={`/product/${product.slug}`}
+                className="flex items-center gap-3 border-r border-gray-200 px-6 transition hover:bg-gray-50"
               >
-                {/* Icon */}
                 <span className="text-xl">
                   {product.categoryIcon}
                 </span>
 
-                {/* Product Name */}
                 <span className="font-bold">
                   {product.nameBn}
                 </span>
 
-                {/* Price */}
                 <span className="text-sm text-gray-700">
                   {toBn(product.today)} টাকা/
                   {unitBn[product.unit] ?? product.unit}
                 </span>
 
-                {/* Change */}
                 <span
                   className={`flex items-center gap-1 text-sm font-bold ${color}`}
                 >
                   <span>{icon}</span>
+
                   <span>
-                    {toBn(Math.abs(product.change.pct))}%
+                    {toBn(
+                      Math.abs(product.change.pct)
+                    )}
+                    %
                   </span>
                 </span>
-              </div>
+              </Link>
             );
           })}
         </MarqueeText>
-
       </div>
     </div>
   );
