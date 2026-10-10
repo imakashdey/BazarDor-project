@@ -1,99 +1,66 @@
-
 import Link from "next/link";
 import MarqueeText from "react-marquee-text";
 import { getProducts } from "@/lib/api";
-
-interface Product {
-  id: number;
-  slug: string;
-  nameBn: string;
-  categoryIcon: string;
-  unit: string;
-  today: number;
-  change: {
-    dir: "up" | "down" | "flat";
-    pct: number;
-  };
-}
-
-const toBn = (value: number | string) =>
-  String(value).replace(
-    /\d/g,
-    (d) => "০১২৩৪৫৬৭৮৯"[Number(d)]
-  );
-
-const unitBn: Record<string, string> = {
-  kg: "কেজি",
-  litre: "লিটার",
-  dozen: "ডজন",
-  piece: "পিস",
-};
-
-const changeStyle = {
-  up: {
-    icon: "▲",
-    color: "text-red-600",
-  },
-  down: {
-    icon: "▼",
-    color: "text-green-600",
-  },
-  flat: {
-    icon: "–",
-    color: "text-gray-500",
-  },
-};
+import { toBn, getUnitLabel } from "@/lib/utils";
+import { Product } from "@/types";
 
 const PriceTicker = async () => {
   const products: Product[] = await getProducts();
 
+  if (!products || products.length === 0) {
+    return null;
+  }
+
   return (
-    <div className="border-b border-gray-200 bg-white text-black">
-      <div className="mx-auto flex max-w-7xl overflow-hidden">
-        <MarqueeText
-          className="py-3"
-          duration={30}
-          direction="right"
-        >
-          {products.map((product) => {
-            const { icon, color } =
-              changeStyle[product.change.dir];
+    <div className="border-b border-gray-200 bg-gray-50/80 text-gray-900 py-1.5 overflow-hidden">
+      <div className="mx-auto flex max-w-7xl items-center px-4">
+        <div className="hidden sm:flex shrink-0 items-center gap-1.5 pr-4 border-r border-gray-300 font-bold text-xs text-emerald-800 uppercase tracking-wide">
+          <span className="inline-block h-2 w-2 rounded-full bg-emerald-600 animate-ping"></span>
+          <span>বাজার আপডেট:</span>
+        </div>
 
-            return (
-              <Link
-                key={product.id}
-                href={`/product/${product.slug}`}
-                className="flex items-center gap-3 border-r border-gray-200 px-6 transition hover:bg-gray-50"
-              >
-                <span className="text-xl">
-                  {product.categoryIcon}
-                </span>
+        <div className="flex-1 overflow-hidden">
+          <MarqueeText
+            className="py-1"
+            duration={35}
+            direction="left"
+            pauseOnHover={true}
+          >
+            <div className="flex items-center">
+              {products.map((product) => {
+                const isUp = product.change?.dir === "up";
+                const isDown = product.change?.dir === "down";
+                const badgeColor = isUp
+                  ? "text-red-600"
+                  : isDown
+                  ? "text-emerald-600"
+                  : "text-gray-500";
+                const arrow = isUp ? "▲" : isDown ? "▼" : "—";
+                const pct = product.change?.pct !== undefined
+                  ? toBn(Math.abs(product.change.pct))
+                  : "০.০";
 
-                <span className="font-bold">
-                  {product.nameBn}
-                </span>
-
-                <span className="text-sm text-gray-700">
-                  {toBn(product.today)} টাকা/
-                  {unitBn[product.unit] ?? product.unit}
-                </span>
-
-                <span
-                  className={`flex items-center gap-1 text-sm font-bold ${color}`}
-                >
-                  <span>{icon}</span>
-
-                  <span>
-                    {toBn(
-                      Math.abs(product.change.pct)
-                    )}
-                    %
-                  </span>
-                </span>
-              </Link>
-            );
-          })}
-        </MarqueeText>
+                return (
+                  <Link
+                    key={product.id}
+                    href={`/product/${product.slug}`}
+                    className="inline-flex items-center gap-2 border-r border-gray-200 px-5 text-sm transition hover:text-emerald-700 whitespace-nowrap"
+                  >
+                    <span className="text-base">{product.categoryIcon || product.image || "🛒"}</span>
+                    <span className="font-semibold text-gray-800">{product.nameBn}</span>
+                    <span className="text-gray-600">
+                      {toBn(product.today)} টাকা/{getUnitLabel(product.unit)}
+                    </span>
+                    <span className={`inline-flex items-center gap-0.5 font-bold text-xs ${badgeColor}`}>
+                      <span>{arrow}</span>
+                      <span>{pct}%</span>
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </MarqueeText>
+        </div>
       </div>
     </div>
   );
