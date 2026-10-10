@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
-import { User, Mail, Calendar, Edit3, LogOut, ArrowLeft, ShieldCheck } from "lucide-react";
-import { toBnDate } from "@/lib/utils";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -14,6 +12,7 @@ export default function ProfilePage() {
 
   const user = session?.user;
 
+  // Protect route
   useEffect(() => {
     if (!isPending && !session) {
       router.replace("/signin?redirect=/profile&reason=auth_required");
@@ -31,147 +30,148 @@ export default function ProfilePage() {
     }
   };
 
+  // Loading state
   if (isPending || !user) {
     return (
-      <main className="flex min-h-[calc(100vh-140px)] items-center justify-center bg-gray-50/50 px-4">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-emerald-600"></div>
-          <p className="text-sm font-medium text-gray-500">প্রোফাইল লোড হচ্ছে...</p>
-        </div>
+      <main className="flex min-h-screen items-center justify-center bg-[#f0f4ee] px-4">
+        <p className="text-sm text-[#4a5f50]">লোড হচ্ছে...</p>
       </main>
     );
   }
 
-  const initial = (user.name || user.email || "U").trim().charAt(0).toUpperCase();
+  const initial = (user.name || user.email || "?").trim().charAt(0).toUpperCase();
 
   return (
-    <main className="min-h-[calc(100vh-140px)] bg-gray-50/50 px-4 py-10 sm:px-6">
-      <div className="mx-auto max-w-2xl space-y-6">
-
-        {/* Back Link */}
-        <div className="flex items-center justify-between">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-gray-600 hover:text-emerald-700 transition-colors"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span>হোমে ফিরে যান</span>
-          </Link>
-        </div>
-
-        {/* Header */}
+    <main className="min-h-screen bg-[#f0f4ee] px-4 py-12 text-[#17301f]">
+      <div className="mx-auto flex w-full max-w-[520px] flex-col gap-5">
+        {/* Heading */}
         <div>
-          <h1 className="text-2xl sm:text-3xl font-black text-gray-950">
+          <h1 className="mb-1 text-[28px] font-bold leading-tight">
             আমার প্রোফাইল
           </h1>
-          <p className="mt-1 text-xs sm:text-sm text-gray-500">
-            আপনার অ্যাকাউন্টের যাবতীয় তথ্য এবং সেটিংস এখানে দেখতে পাবেন।
+          <p className="text-sm text-[#4a5f50]">
+            আপনার অ্যাকাউন্টের তথ্য এখানে দেখুন।
           </p>
         </div>
 
-        {/* Profile Details Card */}
-        <div className="overflow-hidden rounded-3xl border border-gray-200/90 bg-white shadow-xs">
-          {/* Cover gradient */}
-          <div className="h-28 bg-gradient-to-r from-emerald-700 via-teal-700 to-green-600 p-6 flex items-end"></div>
-
-          {/* User info banner */}
-          <div className="relative px-6 pb-6 pt-0">
-            <div className="-mt-12 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-              {/* Avatar */}
-              <div className="flex items-end gap-4">
-                {user.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={user.image}
-                    alt={user.name || "User"}
-                    className="h-24 w-24 rounded-2xl border-4 border-white object-cover shadow-sm bg-white"
-                  />
-                ) : (
-                  <div className="flex h-24 w-24 items-center justify-center rounded-2xl border-4 border-white bg-emerald-700 text-3xl font-black text-white shadow-sm">
-                    {initial}
-                  </div>
-                )}
-
-                <div className="mb-1">
-                  <h2 className="text-xl font-bold text-gray-950 flex items-center gap-2">
-                    <span>{user.name || "নাম দেওয়া নেই"}</span>
-                    <ShieldCheck className="h-4 w-4 text-emerald-600" />
-                  </h2>
-                  <p className="text-xs text-gray-500">{user.email}</p>
-                </div>
+        {/* User card with image and buttons */}
+        <section className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#e3eae0] bg-[#fafcf9] p-5 shadow-[0_1px_2px_rgba(23,48,31,0.04),0_12px_32px_rgba(23,48,31,0.06)]">
+          <div className="flex min-w-0 items-center gap-4">
+            {user.image ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={user.image}
+                alt={user.name || "প্রোফাইল ছবি"}
+                className="h-14 w-14 shrink-0 rounded-xl object-cover border border-[#d3ddd0]"
+              />
+            ) : (
+              <div
+                aria-hidden="true"
+                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-[#1f7a4d] text-xl font-bold text-white shadow-xs"
+              >
+                {initial}
               </div>
+            )}
 
-              {/* Action Buttons: Update Information route button + Sign out */}
-              <div className="flex flex-wrap items-center gap-2.5 pt-2 sm:pt-0">
-                <Link
-                  href="/profile/update"
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-700 px-4 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-2xs transition hover:bg-emerald-800"
-                >
-                  <Edit3 className="h-4 w-4" />
-                  <span>তথ্য পরিবর্তন করুন</span>
-                </Link>
-
-                <button
-                  type="button"
-                  onClick={handleSignOut}
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-red-200 bg-red-50/60 px-4 py-2.5 text-xs sm:text-sm font-semibold text-red-700 transition hover:bg-red-100"
-                >
-                  <LogOut className="h-4 w-4" />
-                  <span>সাইন আউট</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Additional User Info Fields */}
-            <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 border-t border-gray-100 pt-6">
-              <div className="flex items-start gap-3 rounded-2xl border border-gray-100 bg-gray-50/50 p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800">
-                  <User className="h-5 w-5" />
-                </div>
-                <div>
-                  <span className="block text-xs text-gray-500 font-medium">ব্যবহারকারীর নাম</span>
-                  <span className="text-sm font-bold text-gray-900">{user.name || "নাই"}</span>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 rounded-2xl border border-gray-100 bg-gray-50/50 p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800">
-                  <Mail className="h-5 w-5" />
-                </div>
-                <div>
-                  <span className="block text-xs text-gray-500 font-medium">ইমেইল ঠিকানা</span>
-                  <span className="text-sm font-bold text-gray-900">{user.email}</span>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 rounded-2xl border border-gray-100 bg-gray-50/50 p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800">
-                  <Calendar className="h-5 w-5" />
-                </div>
-                <div>
-                  <span className="block text-xs text-gray-500 font-medium">অ্যাকাউন্ট খোলার তারিখ</span>
-                  <span className="text-sm font-bold text-gray-900">
-                    {user.createdAt ? toBnDate(new Date(user.createdAt)) : "হালনাগাদকৃত"}
-                  </span>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-3 rounded-2xl border border-gray-100 bg-gray-50/50 p-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-800">
-                  <ShieldCheck className="h-5 w-5" />
-                </div>
-                <div>
-                  <span className="block text-xs text-gray-500 font-medium">অ্যাকাউন্ট স্ট্যাটাস</span>
-                  <span className="inline-flex items-center gap-1 text-sm font-bold text-emerald-700">
-                    <span className="h-2 w-2 rounded-full bg-emerald-600"></span>
-                    সক্রিয় সদস্য
-                  </span>
-                </div>
-              </div>
+            <div className="min-w-0">
+              <p className="truncate text-base font-semibold">{user.name || "নাম দেওয়া নেই"}</p>
+              <p className="truncate text-sm text-[#4a5f50]">{user.email}</p>
             </div>
           </div>
-        </div>
 
+          <div className="flex items-center gap-2">
+            <Link
+              href="/profile/update"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[#1f7a4d] px-3.5 py-2 text-sm font-medium text-white transition hover:bg-[#186340]"
+            >
+              তথ্য আপডেট
+            </Link>
+
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#e0a3a3] bg-white px-3.5 py-2 text-sm font-medium text-[#c0392b] transition hover:bg-[#fdf2f2] focus:outline-none focus:ring-2 focus:ring-[#c0392b]/20"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-4 w-4"
+                aria-hidden="true"
+              >
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <path d="m16 17 5-5-5-5" />
+                <path d="M21 12H9" />
+              </svg>
+              সাইন আউট
+            </button>
+          </div>
+        </section>
+
+        {/* User information details section */}
+        <section className="flex flex-col gap-5 rounded-2xl border border-[#e3eae0] bg-[#fafcf9] p-5 shadow-[0_1px_2px_rgba(23,48,31,0.04),0_12px_32px_rgba(23,48,31,0.06)] sm:p-6">
+          <div className="flex items-center justify-between border-b border-[#e3eae0] pb-3">
+            <h2 className="text-base font-semibold text-[#17301f]">ব্যক্তিগত তথ্য</h2>
+            <Link
+              href="/profile/update"
+              className="text-xs font-semibold text-[#1f7a4d] hover:underline"
+            >
+              পরিবর্তন করুন →
+            </Link>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <p className="text-xs font-medium text-[#4a5f50]">নাম</p>
+              <p className="mt-1 text-sm font-semibold text-[#17301f]">
+                {user.name || "তথ্য প্রদান করা হয়নি"}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-xs font-medium text-[#4a5f50]">ইমেইল ঠিকানা</p>
+              <p className="mt-1 text-sm font-semibold text-[#17301f]">
+                {user.email}
+              </p>
+            </div>
+
+            {user.image && (
+              <div>
+                <p className="text-xs font-medium text-[#4a5f50]">প্রোফাইল ছবি লিংক</p>
+                <p className="mt-1 truncate text-xs text-[#4a5f50] font-mono">
+                  {user.image}
+                </p>
+              </div>
+            )}
+
+            <div>
+              <p className="text-xs font-medium text-[#4a5f50]">অ্যাকাউন্ট স্ট্যাটাস</p>
+              <p className="mt-1 inline-flex items-center gap-1.5 text-xs font-bold text-[#1f7a4d]">
+                <span className="h-2 w-2 rounded-full bg-[#1f7a4d]"></span>
+                সক্রিয় সদস্য
+              </p>
+            </div>
+          </div>
+
+          <div className="pt-2">
+            <Link
+              href="/profile/update"
+              className="block w-full text-center rounded-[10px] bg-[#1f7a4d] px-4 py-3 text-[15px] font-semibold text-white transition hover:bg-[#17643e]"
+            >
+              তথ্য পরিবর্তন করুন
+            </Link>
+          </div>
+        </section>
+
+        <Link
+          href="/"
+          className="text-sm text-[#4a5f50] transition hover:text-[#1f7a4d]"
+        >
+          ← হোম পেজে ফিরে যান
+        </Link>
       </div>
     </main>
   );

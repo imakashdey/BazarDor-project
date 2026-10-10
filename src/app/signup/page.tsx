@@ -7,7 +7,6 @@ import type { FormEvent } from "react";
 import { authClient } from "@/lib/auth-client";
 import { getAuthErrorMessage } from "@/lib/auth-errors";
 import toast from "react-hot-toast";
-import { ArrowLeft, Lock, Mail, User as UserIcon, Loader2 } from "lucide-react";
 
 function SignUpContent() {
   const router = useRouter();
@@ -20,6 +19,7 @@ function SignUpContent() {
     setErrorMessage("");
 
     const form = new FormData(e.currentTarget);
+
     const name = String(form.get("name") ?? "").trim();
     const email = String(form.get("email") ?? "").trim();
     const password = String(form.get("password") ?? "");
@@ -32,15 +32,15 @@ function SignUpContent() {
       return;
     }
 
-    if (password.length < 8) {
-      const msg = "পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।";
+    if (password !== confirmPassword) {
+      const msg = "পাসওয়ার্ড দুটি মিলছে না!";
       setErrorMessage(msg);
       toast.error(msg);
       return;
     }
 
-    if (password !== confirmPassword) {
-      const msg = "পাসওয়ার্ড দুটি মিলছে না!";
+    if (password.length < 8) {
+      const msg = "পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে।";
       setErrorMessage(msg);
       toast.error(msg);
       return;
@@ -53,6 +53,7 @@ function SignUpContent() {
         name,
         email,
         password,
+        callbackURL: "/signin",
       });
 
       if (error) {
@@ -66,14 +67,14 @@ function SignUpContent() {
       }
 
       if (data) {
-        toast.success("অ্যাকাউন্ট তৈরি সফল হয়েছে! এখন সাইন ইন করুন।", {
+        toast.success("অ্যাকাউন্ট তৈরি সফল হয়েছে! অনুগ্রহ করে সাইন ইন করুন।", {
           duration: 4000,
         });
         router.push("/signin");
         router.refresh();
       }
     } catch {
-      const msg = "কোনো সমস্যা হয়েছে। আবার চেষ্টা করুন।";
+      const msg = "সমস্যা হয়েছে। আবার চেষ্টা করুন।";
       setErrorMessage(msg);
       toast.error(msg);
     } finally {
@@ -92,186 +93,196 @@ function SignUpContent() {
     }
   };
 
+  const inputClass =
+    "w-full rounded-[10px] border border-[#d3ddd0] bg-white px-4 py-3 text-sm text-[#17301f] outline-none transition placeholder:text-[#8b998d] focus:border-[#1f7a4d] focus:ring-2 focus:ring-[#1f7a4d]/10";
+
   return (
-    <main className="flex min-h-[calc(100vh-140px)] flex-col items-center justify-center bg-gray-50/50 px-4 py-12">
-      <div className="w-full max-w-md space-y-6">
-        {/* Title and Subtitle */}
-        <div className="text-center space-y-2">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-2xl">
-            🛒
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-gray-950">
-            নতুন অ্যাকাউন্ট তৈরি করুন
-          </h1>
-          <p className="text-xs sm:text-sm text-gray-600">
-            বিনা খরচে রেজিস্ট্রেশন করে বাজারের সকল বিশ্লেষণ উপভোগ করুন।
-          </p>
-        </div>
+    <main className="flex min-h-screen flex-col items-center justify-center gap-7 bg-[#f0f4ee] px-4 py-12 text-[#17301f]">
+      <div className="w-full max-w-[440px] text-center">
+        <h1 className="mb-2 text-[34px] font-bold leading-tight">
+          সাইন আপ
+        </h1>
 
-        {/* Form Box */}
-        <div className="rounded-3xl border border-gray-200/90 bg-white p-6 sm:p-8 shadow-xs space-y-5">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Name */}
-            <div className="space-y-1.5">
-              <label htmlFor="name" className="block text-xs font-bold text-gray-700">
-                আপনার পুরো নাম
-              </label>
-              <div className="relative">
-                <UserIcon className="pointer-events-none absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  required
-                  autoComplete="name"
-                  placeholder="যেমন: মোঃ আকাশ দে"
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50/30 py-2.5 pl-10 pr-4 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
-                />
-              </div>
-            </div>
-
-            {/* Email */}
-            <div className="space-y-1.5">
-              <label htmlFor="email" className="block text-xs font-bold text-gray-700">
-                ইমেইল ঠিকানা
-              </label>
-              <div className="relative">
-                <Mail className="pointer-events-none absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  autoComplete="email"
-                  placeholder="you@example.com"
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50/30 py-2.5 pl-10 pr-4 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
-                />
-              </div>
-            </div>
-
-            {/* Password */}
-            <div className="space-y-1.5">
-              <label htmlFor="password" className="block text-xs font-bold text-gray-700">
-                পাসওয়ার্ড (কমপক্ষে ৮ অক্ষর)
-              </label>
-              <div className="relative">
-                <Lock className="pointer-events-none absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  minLength={8}
-                  autoComplete="new-password"
-                  placeholder="••••••••"
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50/30 py-2.5 pl-10 pr-4 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
-                />
-              </div>
-            </div>
-
-            {/* Confirm Password */}
-            <div className="space-y-1.5">
-              <label htmlFor="confirmPassword" className="block text-xs font-bold text-gray-700">
-                পাসওয়ার্ড নিশ্চিত করুন
-              </label>
-              <div className="relative">
-                <Lock className="pointer-events-none absolute left-3.5 top-3 h-4 w-4 text-gray-400" />
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  required
-                  minLength={8}
-                  autoComplete="new-password"
-                  placeholder="••••••••"
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50/30 py-2.5 pl-10 pr-4 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-emerald-600 focus:bg-white focus:ring-2 focus:ring-emerald-500/20"
-                />
-              </div>
-            </div>
-
-            {errorMessage && (
-              <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700">
-                {errorMessage}
-              </div>
-            )}
-
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-700 py-3 text-sm font-bold text-white shadow-xs transition hover:bg-emerald-800 disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>রেজিস্ট্রেশন হচ্ছে...</span>
-                </>
-              ) : (
-                <span>অ্যাকাউন্ট তৈরি করুন</span>
-              )}
-            </button>
-          </form>
-
-          {/* Divider */}
-          <div className="relative flex items-center justify-center">
-            <div className="w-full border-t border-gray-200"></div>
-            <span className="absolute bg-white px-3 text-xs font-medium text-gray-400">অথবা</span>
-          </div>
-
-          {/* Social Logins */}
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => handleSocialSignUp("google")}
-              className="flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white py-2.5 px-3 text-xs font-semibold text-gray-700 shadow-2xs transition hover:bg-gray-50 hover:border-gray-300"
-            >
-              <svg className="h-4 w-4" viewBox="0 0 48 48">
-                <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z" />
-                <path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.6 5.9c4.4-4.1 7-10.1 7-17.6z" />
-                <path fill="#FBBC05" d="M10.5 28.7c-.5-1.5-.8-3-.8-4.7s.3-3.2.8-4.7l-7.9-6.1C.9 16.4 0 20.1 0 24s.9 7.6 2.6 10.8l7.9-6.1z" />
-                <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.6-5.9c-2.1 1.4-4.9 2.3-8.3 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z" />
-              </svg>
-              <span>Google</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleSocialSignUp("github")}
-              className="flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white py-2.5 px-3 text-xs font-semibold text-gray-700 shadow-2xs transition hover:bg-gray-50 hover:border-gray-300"
-            >
-              <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
-              </svg>
-              <span>GitHub</span>
-            </button>
-          </div>
-
-          {/* Sign In Link */}
-          <div className="text-center pt-2">
-            <p className="text-xs text-gray-600">
-              ইতিমধ্যে অ্যাকাউন্ট আছে?{" "}
-              <Link href="/signin" className="font-bold text-emerald-700 hover:text-emerald-800 hover:underline">
-                সাইন ইন করুন
-              </Link>
-            </p>
-          </div>
-        </div>
-
-        {/* Back to Home */}
-        <div className="text-center">
-          <Link href="/" className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-emerald-700">
-            <ArrowLeft className="h-3.5 w-3.5" />
-            <span>হোম পেজে ফিরে যান</span>
-          </Link>
-        </div>
+        <p className="text-[15px] leading-relaxed text-[#4a5f50]">
+          বিনা খরচে সাইন আপ করে সব বিস্তারিত দাম দেখুন।
+        </p>
       </div>
+
+      <form
+        onSubmit={handleSubmit}
+        className="flex w-full max-w-[440px] flex-col gap-5 rounded-2xl border border-[#e3eae0] bg-[#fafcf9] p-6 shadow-[0_1px_2px_rgba(23,48,31,0.04),0_12px_32px_rgba(23,48,31,0.06)] sm:p-7"
+      >
+        {/* Name */}
+        <div>
+          <label htmlFor="name" className="mb-2 block text-sm font-medium">
+            নাম
+          </label>
+
+          <input
+            id="name"
+            name="name"
+            type="text"
+            placeholder="আপনার পুরো নাম"
+            autoComplete="name"
+            required
+            className={inputClass}
+          />
+        </div>
+
+        {/* Email */}
+        <div>
+          <label htmlFor="email" className="mb-2 block text-sm font-medium">
+            ইমেইল
+          </label>
+
+          <input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="you@example.com"
+            autoComplete="email"
+            required
+            className={inputClass}
+          />
+        </div>
+
+        {/* Password */}
+        <div>
+          <label htmlFor="password" className="mb-2 block text-sm font-medium">
+            পাসওয়ার্ড
+          </label>
+
+          <input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="কমপক্ষে ৮ অক্ষর"
+            autoComplete="new-password"
+            minLength={8}
+            required
+            className={inputClass}
+          />
+        </div>
+
+        {/* Confirm Password */}
+        <div>
+          <label
+            htmlFor="confirmPassword"
+            className="mb-2 block text-sm font-medium"
+          >
+            পাসওয়ার্ড নিশ্চিত করুন
+          </label>
+
+          <input
+            id="confirmPassword"
+            name="confirmPassword"
+            type="password"
+            placeholder="পাসওয়ার্ড আবার লিখুন"
+            autoComplete="new-password"
+            minLength={8}
+            required
+            className={inputClass}
+          />
+        </div>
+
+        {/* Error Message */}
+        {errorMessage && (
+          <p
+            role="alert"
+            className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600 border border-red-200"
+          >
+            {errorMessage}
+          </p>
+        )}
+
+        {/* Submit Button */}
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="mt-1 w-full rounded-[10px] bg-[#1f7a4d] px-4 py-3 text-[15px] font-semibold text-white transition hover:bg-[#17643e] focus:outline-none focus:ring-2 focus:ring-[#1f7a4d]/30 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {isLoading ? "অ্যাকাউন্ট তৈরি হচ্ছে..." : "অ্যাকাউন্ট তৈরি করুন"}
+        </button>
+
+        {/* Divider */}
+        <div className="flex items-center gap-3">
+          <div className="h-px flex-1 bg-[#e3eae0]" />
+          <span className="text-xs text-[#7a897d]">অথবা</span>
+          <div className="h-px flex-1 bg-[#e3eae0]" />
+        </div>
+
+        {/* Google and GitHub Buttons */}
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => handleSocialSignUp("google")}
+            className="flex min-h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-[10px] border border-[#d3ddd0] bg-white px-2 py-3 text-xs font-medium transition hover:bg-[#f4f8f2] sm:text-sm"
+          >
+            <svg viewBox="0 0 48 48" className="h-5 w-5 shrink-0">
+              <path
+                fill="#EA4335"
+                d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5Z"
+              />
+              <path
+                fill="#4285F4"
+                d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.73 7.18l7.64 5.93c4.46-4.13 7.13-10.2 7.13-17.58Z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M10.53 28.59A14.4 14.4 0 0 1 9.75 24c0-1.59.27-3.13.76-4.59l-7.98-6.19A23.9 23.9 0 0 0 0 24c0 3.87.93 7.52 2.56 10.78l7.97-6.19Z"
+              />
+              <path
+                fill="#34A853"
+                d="M24 48c6.48 0 11.93-2.13 15.9-5.87l-7.64-5.93c-2.12 1.42-4.84 2.26-8.26 2.26-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48Z"
+              />
+            </svg>
+
+            <span>Google দিয়ে চালিয়ে যান</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleSocialSignUp("github")}
+            className="flex min-h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-[10px] border border-[#d3ddd0] bg-white px-2 py-3 text-xs font-medium transition hover:bg-[#f4f8f2] sm:text-sm"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="h-5 w-5 shrink-0"
+            >
+              <path d="M12 .9a11.1 11.1 0 0 0-3.51 21.63c.55.1.76-.24.76-.53v-2.08c-3.1.68-3.75-1.31-3.75-1.31-.5-1.29-1.24-1.63-1.24-1.63-1.01-.69.08-.68.08-.68 1.12.08 1.71 1.15 1.71 1.15.99 1.7 2.6 1.21 3.23.93.1-.72.39-1.21.7-1.49-2.47-.28-5.07-1.24-5.07-5.5 0-1.22.44-2.22 1.15-3-.12-.28-.5-1.42.11-2.95 0 0 .94-.3 3.05 1.14a10.6 10.6 0 0 1 5.55 0c2.11-1.44 3.05-1.14 3.05-1.14.61 1.53.23 2.67.11 2.95.71.78 1.15 1.78 1.15 3 0 4.27-2.6 5.21-5.08 5.49.4.35.75 1.02.75 2.06V22c0 .29.2.63.76.52A11.1 11.1 0 0 0 12 .9Z" />
+            </svg>
+
+            <span>GitHub দিয়ে চালিয়ে যান</span>
+          </button>
+        </div>
+
+        {/* Sign In Link */}
+        <p className="text-center text-sm text-[#4a5f50]">
+          আগে থেকেই অ্যাকাউন্ট আছে?{" "}
+          <Link
+            href="/signin"
+            className="font-semibold text-[#1f7a4d] hover:underline"
+          >
+            সাইন ইন করুন
+          </Link>
+        </p>
+      </form>
+
+      {/* Home Link */}
+      <Link
+        href="/"
+        className="text-sm text-[#4a5f50] transition hover:text-[#1f7a4d]"
+      >
+        ← হোম পেজে ফিরে যান
+      </Link>
     </main>
   );
 }
 
 export default function SignUp() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-sm text-gray-500">লোড হচ্ছে...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-sm text-[#4a5f50]">লোড হচ্ছে...</div>}>
       <SignUpContent />
     </Suspense>
   );
