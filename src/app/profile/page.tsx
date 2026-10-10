@@ -1,14 +1,22 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import type { FormEvent } from "react";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 
 export default function ProfilePage() {
   const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
+
+  const [name, setName] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   const user = session?.user;
 
@@ -18,6 +26,11 @@ export default function ProfilePage() {
       router.replace("/signin?redirect=/profile&reason=auth_required");
     }
   }, [isPending, session, router]);
+
+  // Pre-fill name
+  useEffect(() => {
+    if (user?.name) setName(user.name);
+  }, [user?.name]);
 
   const handleSignOut = async () => {
     try {
@@ -30,7 +43,44 @@ export default function ProfilePage() {
     }
   };
 
-  // Loading state
+  const handleSave = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setMessage(null);
+
+    const trimmed = name.trim();
+    if (!trimmed) {
+      const msg = "নাম খালি রাখা যাবে না।";
+      setMessage({ type: "error", text: msg });
+      toast.error(msg);
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const { error } = await authClient.updateUser({ name: trimmed });
+
+      if (error) {
+        const msg = error.message || "তথ্য সংরক্ষণ করা যায়নি।";
+        setMessage({ type: "error", text: msg });
+        toast.error(msg);
+        return;
+      }
+
+      toast.success("তথ্য সফলভাবে সংরক্ষণ হয়েছে!");
+      setMessage({ type: "success", text: "তথ্য সংরক্ষণ হয়েছে।" });
+      router.refresh();
+    } catch {
+      const msg = "সমস্যা হয়েছে। আবার চেষ্টা করুন।";
+      setMessage({ type: "error", text: msg });
+      toast.error(msg);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const inputClass =
+    "w-full rounded-[10px] border border-[#d3ddd0] bg-white px-4 py-3 text-sm text-[#17301f] outline-none transition placeholder:text-[#8b998d] focus:border-[#1f7a4d] focus:ring-2 focus:ring-[#1f7a4d]/10 disabled:cursor-not-allowed disabled:bg-[#f4f7f2]";
+
   if (isPending || !user) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#f0f4ee] px-4">
@@ -43,8 +93,8 @@ export default function ProfilePage() {
 
   return (
     <main className="min-h-screen bg-[#f0f4ee] px-4 py-12 text-[#17301f]">
-      <div className="mx-auto flex w-full max-w-[520px] flex-col gap-5">
-        {/* Heading */}
+      <div className="mx-auto flex w-full max-w-[580px] flex-col gap-6">
+        {/* Title & Subtitle */}
         <div>
           <h1 className="mb-1 text-[28px] font-bold leading-tight">
             আমার প্রোফাইল
@@ -54,7 +104,7 @@ export default function ProfilePage() {
           </p>
         </div>
 
-        {/* User card with image and buttons */}
+        {/* Card 1: User Profile Card */}
         <section className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#e3eae0] bg-[#fafcf9] p-5 shadow-[0_1px_2px_rgba(23,48,31,0.04),0_12px_32px_rgba(23,48,31,0.06)]">
           <div className="flex min-w-0 items-center gap-4">
             {user.image ? (
@@ -62,109 +112,95 @@ export default function ProfilePage() {
               <img
                 src={user.image}
                 alt={user.name || "প্রোফাইল ছবি"}
-                className="h-14 w-14 shrink-0 rounded-xl object-cover border border-[#d3ddd0]"
+                className="h-16 w-16 shrink-0 rounded-xl object-cover border border-[#d3ddd0] bg-white"
               />
             ) : (
               <div
                 aria-hidden="true"
-                className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-[#1f7a4d] text-xl font-bold text-white shadow-xs"
+                className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-[#1f7a4d] text-2xl font-bold text-white shadow-xs"
               >
                 {initial}
               </div>
             )}
 
             <div className="min-w-0">
-              <p className="truncate text-base font-semibold">{user.name || "নাম দেওয়া নেই"}</p>
-              <p className="truncate text-sm text-[#4a5f50]">{user.email}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Link
-              href="/profile/update"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[#1f7a4d] px-3.5 py-2 text-sm font-medium text-white transition hover:bg-[#186340]"
-            >
-              তথ্য আপডেট
-            </Link>
-
-            <button
-              type="button"
-              onClick={handleSignOut}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#e0a3a3] bg-white px-3.5 py-2 text-sm font-medium text-[#c0392b] transition hover:bg-[#fdf2f2] focus:outline-none focus:ring-2 focus:ring-[#c0392b]/20"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="h-4 w-4"
-                aria-hidden="true"
-              >
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                <path d="m16 17 5-5-5-5" />
-                <path d="M21 12H9" />
-              </svg>
-              সাইন আউট
-            </button>
-          </div>
-        </section>
-
-        {/* User information details section */}
-        <section className="flex flex-col gap-5 rounded-2xl border border-[#e3eae0] bg-[#fafcf9] p-5 shadow-[0_1px_2px_rgba(23,48,31,0.04),0_12px_32px_rgba(23,48,31,0.06)] sm:p-6">
-          <div className="flex items-center justify-between border-b border-[#e3eae0] pb-3">
-            <h2 className="text-base font-semibold text-[#17301f]">ব্যক্তিগত তথ্য</h2>
-            <Link
-              href="/profile/update"
-              className="text-xs font-semibold text-[#1f7a4d] hover:underline"
-            >
-              পরিবর্তন করুন →
-            </Link>
-          </div>
-
-          <div className="space-y-4">
-            <div>
-              <p className="text-xs font-medium text-[#4a5f50]">নাম</p>
-              <p className="mt-1 text-sm font-semibold text-[#17301f]">
-                {user.name || "তথ্য প্রদান করা হয়নি"}
+              <p className="truncate text-base font-bold text-[#17301f]">
+                {user.name || "নাম দেওয়া নেই"}
               </p>
-            </div>
-
-            <div>
-              <p className="text-xs font-medium text-[#4a5f50]">ইমেইল ঠিকানা</p>
-              <p className="mt-1 text-sm font-semibold text-[#17301f]">
+              <p className="truncate text-xs sm:text-sm text-[#4a5f50]">
                 {user.email}
               </p>
             </div>
-
-            {user.image && (
-              <div>
-                <p className="text-xs font-medium text-[#4a5f50]">প্রোফাইল ছবি লিংক</p>
-                <p className="mt-1 truncate text-xs text-[#4a5f50] font-mono">
-                  {user.image}
-                </p>
-              </div>
-            )}
-
-            <div>
-              <p className="text-xs font-medium text-[#4a5f50]">অ্যাকাউন্ট স্ট্যাটাস</p>
-              <p className="mt-1 inline-flex items-center gap-1.5 text-xs font-bold text-[#1f7a4d]">
-                <span className="h-2 w-2 rounded-full bg-[#1f7a4d]"></span>
-                সক্রিয় সদস্য
-              </p>
-            </div>
           </div>
 
-          <div className="pt-2">
-            <Link
-              href="/profile/update"
-              className="block w-full text-center rounded-[10px] bg-[#1f7a4d] px-4 py-3 text-[15px] font-semibold text-white transition hover:bg-[#17643e]"
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#e0a3a3] bg-white px-3.5 py-2 text-xs sm:text-sm font-semibold text-[#c0392b] transition hover:bg-[#fdf2f2] focus:outline-none focus:ring-2 focus:ring-[#c0392b]/20 cursor-pointer"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-4 w-4"
+              aria-hidden="true"
             >
-              তথ্য পরিবর্তন করুন
-            </Link>
-          </div>
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+              <path d="m16 17 5-5-5-5" />
+              <path d="M21 12H9" />
+            </svg>
+            সাইন আউট
+          </button>
         </section>
+
+        {/* Card 2: তথ্য Form */}
+        <form
+          onSubmit={handleSave}
+          className="flex flex-col gap-5 rounded-2xl border border-[#e3eae0] bg-[#fafcf9] p-5 shadow-[0_1px_2px_rgba(23,48,31,0.04),0_12px_32px_rgba(23,48,31,0.06)] sm:p-6"
+        >
+          <h2 className="text-base font-bold text-[#17301f]">তথ্য</h2>
+
+          <div>
+            <label htmlFor="name" className="mb-2 block text-xs font-semibold text-[#17301f]">
+              নাম
+            </label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="আপনার পুরো নাম"
+              autoComplete="name"
+              required
+              className={inputClass}
+            />
+          </div>
+
+          {message && (
+            <p
+              role="alert"
+              className={`rounded-lg px-3.5 py-2.5 text-xs font-medium ${
+                message.type === "success"
+                  ? "bg-[#eaf5ee] text-[#1f7a4d] border border-emerald-200"
+                  : "bg-red-50 text-red-600 border border-red-200"
+              }`}
+            >
+              {message.text}
+            </p>
+          )}
+
+          <button
+            type="submit"
+            disabled={isSaving}
+            className="w-full rounded-[10px] bg-[#1f7a4d] px-4 py-3 text-[15px] font-semibold text-white transition hover:bg-[#17643e] focus:outline-none focus:ring-2 focus:ring-[#1f7a4d]/30 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
+          >
+            {isSaving ? "সংরক্ষণ হচ্ছে..." : "সংরক্ষণ করুন"}
+          </button>
+        </form>
 
         <Link
           href="/"

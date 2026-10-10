@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import toast from "react-hot-toast";
 import { toBnDate } from "@/lib/utils";
-import { User, LogOut, ChevronDown, Edit3 } from "lucide-react";
+import { User, LogOut, ChevronDown } from "lucide-react";
 
 const Header = () => {
   const router = useRouter();
@@ -87,7 +87,7 @@ const Header = () => {
               <button
                 type="button"
                 onClick={() => setIsDropdownOpen((prev) => !prev)}
-                className="flex items-center gap-2.5 rounded-xl border border-[#d3ddd0] bg-[#fafcf9] px-3 py-1.5 text-sm font-semibold text-[#17301f] transition hover:bg-[#f0f4ee] focus:outline-none focus:ring-2 focus:ring-[#1f7a4d]/20"
+                className="flex items-center gap-2.5 rounded-xl border border-[#d3ddd0] bg-[#fafcf9] px-3 py-1.5 text-sm font-semibold text-[#17301f] transition hover:bg-[#f0f4ee] focus:outline-none focus:ring-2 focus:ring-[#1f7a4d]/20 cursor-pointer"
               >
                 {user.image ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -150,23 +150,13 @@ const Header = () => {
                     <span>আমার প্রোফাইল</span>
                   </Link>
 
-                  {/* Update Info Link */}
-                  <Link
-                    href="/profile/update"
-                    onClick={() => setIsDropdownOpen(false)}
-                    className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-[#17301f] transition hover:bg-[#f0f4ee]"
-                  >
-                    <Edit3 className="h-4 w-4 text-[#1f7a4d]" />
-                    <span>তথ্য পরিবর্তন করুন</span>
-                  </Link>
-
                   <div className="h-px bg-[#e3eae0] my-1" />
 
                   {/* Sign Out Button */}
                   <button
                     type="button"
                     onClick={handleSignOut}
-                    className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-[#c0392b] transition hover:bg-[#fdf2f2]"
+                    className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium text-[#c0392b] transition hover:bg-[#fdf2f2] cursor-pointer"
                   >
                     <LogOut className="h-4 w-4 text-[#c0392b]" />
                     <span>সাইন আউট</span>

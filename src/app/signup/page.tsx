@@ -22,6 +22,7 @@ function SignUpContent() {
 
     const name = String(form.get("name") ?? "").trim();
     const email = String(form.get("email") ?? "").trim();
+    const image = String(form.get("image") ?? "").trim();
     const password = String(form.get("password") ?? "");
     const confirmPassword = String(form.get("confirmPassword") ?? "");
 
@@ -53,6 +54,7 @@ function SignUpContent() {
         name,
         email,
         password,
+        image: image || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}`,
         callbackURL: "/signin",
       });
 
@@ -100,7 +102,7 @@ function SignUpContent() {
     <main className="flex min-h-screen flex-col items-center justify-center gap-7 bg-[#f0f4ee] px-4 py-12 text-[#17301f]">
       <div className="w-full max-w-[440px] text-center">
         <h1 className="mb-2 text-[34px] font-bold leading-tight">
-          সাইন আপ
+          অ্যাকাউন্ট তৈরি করুন
         </h1>
 
         <p className="text-[15px] leading-relaxed text-[#4a5f50]">
@@ -142,6 +144,21 @@ function SignUpContent() {
             placeholder="you@example.com"
             autoComplete="email"
             required
+            className={inputClass}
+          />
+        </div>
+
+        {/* Image URL (Optional) */}
+        <div>
+          <label htmlFor="image" className="mb-2 block text-sm font-medium">
+            প্রোফাইল ছবি (URL - ঐচ্ছিক)
+          </label>
+
+          <input
+            id="image"
+            name="image"
+            type="url"
+            placeholder="https://example.com/avatar.jpg"
             className={inputClass}
           />
         </div>
@@ -199,7 +216,7 @@ function SignUpContent() {
         <button
           type="submit"
           disabled={isLoading}
-          className="mt-1 w-full rounded-[10px] bg-[#1f7a4d] px-4 py-3 text-[15px] font-semibold text-white transition hover:bg-[#17643e] focus:outline-none focus:ring-2 focus:ring-[#1f7a4d]/30 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-1 w-full rounded-[10px] bg-[#1f7a4d] px-4 py-3 text-[15px] font-semibold text-white transition hover:bg-[#17643e] focus:outline-none focus:ring-2 focus:ring-[#1f7a4d]/30 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
         >
           {isLoading ? "অ্যাকাউন্ট তৈরি হচ্ছে..." : "অ্যাকাউন্ট তৈরি করুন"}
         </button>
@@ -216,7 +233,7 @@ function SignUpContent() {
           <button
             type="button"
             onClick={() => handleSocialSignUp("google")}
-            className="flex min-h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-[10px] border border-[#d3ddd0] bg-white px-2 py-3 text-xs font-medium transition hover:bg-[#f4f8f2] sm:text-sm"
+            className="flex min-h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-[10px] border border-[#d3ddd0] bg-white px-2 py-3 text-xs font-medium transition hover:bg-[#f4f8f2] sm:text-sm cursor-pointer"
           >
             <svg viewBox="0 0 48 48" className="h-5 w-5 shrink-0">
               <path
@@ -243,7 +260,7 @@ function SignUpContent() {
           <button
             type="button"
             onClick={() => handleSocialSignUp("github")}
-            className="flex min-h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-[10px] border border-[#d3ddd0] bg-white px-2 py-3 text-xs font-medium transition hover:bg-[#f4f8f2] sm:text-sm"
+            className="flex min-h-12 min-w-0 flex-1 items-center justify-center gap-2 rounded-[10px] border border-[#d3ddd0] bg-white px-2 py-3 text-xs font-medium transition hover:bg-[#f4f8f2] sm:text-sm cursor-pointer"
           >
             <svg
               viewBox="0 0 24 24"
