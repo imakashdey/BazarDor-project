@@ -1,8 +1,17 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { toBnDate } from "@/lib/utils";
 import { ArrowDown } from "lucide-react";
 
 const Hero = () => {
+  const [dateStr, setDateStr] = useState("আজকের বাজার দর");
+
+  useEffect(() => {
+    setDateStr(toBnDate());
+  }, []);
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-emerald-50/50 via-white to-gray-50/30 px-4 py-8 sm:py-12">
       <div className="mx-auto max-w-7xl">
@@ -17,7 +26,7 @@ const Hero = () => {
               {/* Eyebrow */}
               <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3.5 py-1 text-xs font-bold text-emerald-800 shadow-2xs">
                 <span className="inline-block h-2 w-2 rounded-full bg-emerald-600 animate-pulse" />
-                <span>{toBnDate()}</span>
+                <span>{dateStr}</span>
                 <span className="text-emerald-400">•</span>
                 <span className="font-medium text-emerald-700">দৈনিক হালনাগাদ</span>
               </div>

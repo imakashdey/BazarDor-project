@@ -23,7 +23,7 @@ const Footer = () => {
 
         {/* Bottom copyright line */}
         <div className="mt-6 border-t border-gray-100 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-400">
-          <p>© {new Date().getFullYear()} বাজার দর (BazarDor). সর্বস্বত্ব সংরক্ষিত।</p>
+          <p>© 2026 বাজার দর (BazarDor). সর্বস্বত্ব সংরক্ষিত।</p>
           <div className="flex items-center gap-4">
             <Link href="/" className="hover:text-emerald-700 transition-colors">
               হোম
