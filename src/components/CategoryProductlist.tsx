@@ -1,100 +1,73 @@
-
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import ProductCard from "@/components/ProductCard";
-
-interface Product {
-  id: number;
-  slug: string;
-  nameBn: string;
-  image: string;
-  unit: string;
-  today: number;
-  change: {
-    dir: "up" | "down" | "flat";
-    pct: number;
-  };
-}
+import SortDropdown from "@/components/SortDropdown";
+import { Product } from "@/types";
+import { toBn } from "@/lib/utils";
+import Link from "next/link";
+import { PackageOpen } from "lucide-react";
 
 interface CategoryProductListProps {
   products: Product[];
 }
 
-const CategoryProductList = ({
-  products,
-}: CategoryProductListProps) => {
-  const [sort, setSort] = useState("default");
+const CategoryProductList = ({ products }: CategoryProductListProps) => {
+  const [sortOption, setSortOption] = useState("default");
 
-  const sortedProducts = [...products].sort((a, b) => {
-    if (sort === "price-low") {
-      return a.today - b.today;
+  const sortedProducts = useMemo(() => {
+    const list = [...products];
+
+    switch (sortOption) {
+      case "price-asc":
+        return list.sort((a, b) => Number(a.today) - Number(b.today));
+      case "price-desc":
+        return list.sort((a, b) => Number(b.today) - Number(a.today));
+      case "change-up":
+        return list.sort((a, b) => (Number(b.change?.pct) || 0) - (Number(a.change?.pct) || 0));
+      case "change-down":
+        return list.sort((a, b) => (Number(a.change?.pct) || 0) - (Number(b.change?.pct) || 0));
+      case "default":
+      default:
+        return list;
     }
+  }, [products, sortOption]);
 
-    if (sort === "price-high") {
-      return b.today - a.today;
-    }
-
-    if (sort === "increase") {
-      return b.change.pct - a.change.pct;
-    }
-
-    if (sort === "decrease") {
-      return a.change.pct - b.change.pct;
-    }
-
-    return 0;
-  });
+  if (!products || products.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-gray-300 bg-white p-12 text-center">
+        <PackageOpen className="h-16 w-16 text-gray-400" />
+        <h3 className="mt-4 text-xl font-bold text-gray-900">এই ক্যাটাগরিতে কোনো পণ্য পাওয়া যায়নি</h3>
+        <p className="mt-2 text-sm text-gray-500">অন্য কোনো ক্যাটাগরি দেখুন অথবা হোম পেজে ফিরে যান।</p>
+        <Link
+          href="/"
+          className="mt-6 rounded-xl bg-emerald-700 px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800"
+        >
+          হোম পেজে ফিরে যান
+        </Link>
+      </div>
+    );
+  }
 
   return (
-    <>
+    <div className="space-y-6">
       {/* Toolbar */}
-      <div className="flex items-center justify-between gap-3">
-        <p className="text-xs text-gray-500">
-          মোট {products.length.toLocaleString("bn-BD")}টি পণ্য দেখানো হচ্ছে
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-gray-200/80 pb-4">
+        <p className="text-sm font-medium text-gray-600">
+          মোট <span className="font-bold text-emerald-800">{toBn(products.length)}</span>টি পণ্য পাওয়া গেছে
         </p>
 
-        <div className="flex items-center gap-2 text-xs text-gray-500">
-          <span>সাজান</span>
-
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value)}
-            className="rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-semibold text-gray-800 outline-none transition focus:border-green-600"
-          >
-            <option value="default">ডিফল্ট</option>
-
-            <option value="price-low">
-              দাম: কম থেকে বেশি
-            </option>
-
-            <option value="price-high">
-              দাম: বেশি থেকে কম
-            </option>
-
-            <option value="increase">
-              বেশি বেড়েছে
-            </option>
-
-            <option value="decrease">
-              বেশি কমেছে
-            </option>
-          </select>
-        </div>
+        <SortDropdown value={sortOption} onChange={setSortOption} />
       </div>
 
-      {/* Products */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Products Grid */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {sortedProducts.map((product) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-          />
+          <ProductCard key={product.id} product={product} />
         ))}
       </div>
-    </>
+    </div>
   );
 };
 
 export default CategoryProductList;
-
