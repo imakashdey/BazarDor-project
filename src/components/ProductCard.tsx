@@ -1,86 +1,66 @@
-
 import Link from "next/link";
-
-interface Product {
-  id: number;
-  slug: string;
-  nameBn: string;
-  image: string;
-  unit: string;
-  today: number;
-  change: {
-    dir: "up" | "down" | "flat";
-    pct: number;
-  };
-}
+import { Product } from "@/types";
+import { toBn, toBnCurrency, getUnitLabel } from "@/lib/utils";
 
 interface ProductCardProps {
   product: Product;
 }
 
-const toBn = (value: number | string) =>
-  String(value).replace(/\d/g, (d) => "০১২৩৪৫৬৭৮৯"[Number(d)]);
-
-const unitBn: Record<string, string> = {
-  kg: "কেজি",
-  litre: "লিটার",
-  dozen: "ডজন",
-  piece: "পিস",
-};
-
 const ProductCard = ({ product }: ProductCardProps) => {
-  const isUp = product.change.dir === "up";
-  const isDown = product.change.dir === "down";
+  const isUp = product.change?.dir === "up";
+  const isDown = product.change?.dir === "down";
+  const pct = product.change?.pct !== undefined
+    ? toBn(Math.abs(product.change.pct))
+    : "০.০";
 
   return (
     <Link
       href={`/product/${product.slug}`}
-      className="block rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+      className="group relative flex flex-col justify-between rounded-2xl border border-gray-200/90 bg-white p-4 sm:p-5 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-emerald-300 hover:shadow-md"
     >
-      {/* Product */}
-      <div className="flex items-center gap-3">
-        <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gray-100 text-3xl">
-          {product.image}
-        </div>
+      {/* Top: Icon + Name + Category/Unit */}
+      <div>
+        <div className="flex items-start gap-3.5">
+          <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl bg-emerald-50/80 text-2xl transition-transform duration-200 group-hover:scale-105 border border-emerald-100/60">
+            {product.image || product.categoryIcon || "🛒"}
+          </div>
 
-        <div>
-          <p className="text-lg font-bold leading-tight text-gray-900">
-            {product.nameBn}
-          </p>
+          <div className="min-w-0 flex-1">
+            <h3 className="truncate text-base font-bold text-gray-900 transition-colors group-hover:text-emerald-800 sm:text-lg">
+              {product.nameBn}
+            </h3>
 
-          <p className="text-xs text-gray-600">
-            প্রতি {unitBn[product.unit] ?? product.unit}
-          </p>
+            <p className="mt-0.5 text-xs font-medium text-gray-500">
+              প্রতি {getUnitLabel(product.unit)}
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Price + Change */}
-      <div className="mt-4 flex items-end justify-between">
+      {/* Bottom: Price Row + Change Badge */}
+      <div className="mt-4 flex items-end justify-between border-t border-gray-100 pt-3">
         <div>
-          <p className="text-xs text-gray-700">
+          <span className="block text-[11px] font-medium text-gray-500">
             আজকের দাম
-          </p>
-
-          <p className="text-xl font-extrabold text-gray-900">
-            {toBn(product.today)}{" "}
-            <span className="text-base font-semibold">
-              টাকা
-            </span>
-          </p>
+          </span>
+          <span className="text-xl font-extrabold text-gray-900 sm:text-2xl">
+            {toBnCurrency(product.today)}{" "}
+            <span className="text-xs font-semibold text-gray-600">টাকা</span>
+          </span>
         </div>
 
-        <span
-          className={`rounded-full px-3 py-1.5 text-xs font-bold ${
+        <div
+          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold border ${
             isUp
-              ? "bg-red-50 text-red-600"
+              ? "border-red-200 bg-red-50/80 text-red-600"
               : isDown
-                ? "bg-green-50 text-green-600"
-                : "bg-gray-100 text-gray-500"
+              ? "border-emerald-200 bg-emerald-50/80 text-emerald-700"
+              : "border-gray-200 bg-gray-100/80 text-gray-600"
           }`}
         >
-          {isUp ? "▲" : isDown ? "▼" : "–"}{" "}
-          {toBn(Math.abs(product.change.pct))}%
-        </span>
+          <span>{isUp ? "▲" : isDown ? "▼" : "—"}</span>
+          <span>{pct}%</span>
+        </div>
       </div>
     </Link>
   );
