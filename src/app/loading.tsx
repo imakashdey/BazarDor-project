@@ -1,7 +1,9 @@
+import LoadingSkeleton from "@/components/LoadingSkeleton";
+
 export default function Loading() {
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="h-10 w-10 animate-spin rounded-full border-4 border-gray-300 border-t-red-600"></div>
-    </div>
+    <main className="min-h-screen bg-gray-50/50">
+      <LoadingSkeleton />
+    </main>
   );
 }
