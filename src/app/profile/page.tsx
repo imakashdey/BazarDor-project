@@ -133,27 +133,36 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={handleSignOut}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[#e0a3a3] bg-white px-3.5 py-2 text-xs sm:text-sm font-semibold text-[#c0392b] transition hover:bg-[#fdf2f2] focus:outline-none focus:ring-2 focus:ring-[#c0392b]/20 cursor-pointer"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-4 w-4"
-              aria-hidden="true"
+          <div className="flex items-center gap-2">
+            <Link
+              href="/profile/update"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#1f7a4d] bg-[#1f7a4d] px-3.5 py-2 text-xs sm:text-sm font-semibold text-white transition hover:bg-[#186340] focus:outline-none focus:ring-2 focus:ring-[#1f7a4d]/30 cursor-pointer shadow-2xs"
             >
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-              <path d="m16 17 5-5-5-5" />
-              <path d="M21 12H9" />
-            </svg>
-            সাইন আউট
-          </button>
+              তথ্য আপডেট করুন
+            </Link>
+
+            <button
+              type="button"
+              onClick={handleSignOut}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#e0a3a3] bg-white px-3.5 py-2 text-xs sm:text-sm font-semibold text-[#c0392b] transition hover:bg-[#fdf2f2] focus:outline-none focus:ring-2 focus:ring-[#c0392b]/20 cursor-pointer"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="h-4 w-4"
+                aria-hidden="true"
+              >
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                <path d="m16 17 5-5-5-5" />
+                <path d="M21 12H9" />
+              </svg>
+              সাইন আউট
+            </button>
+          </div>
         </section>
 
         {/* Card 2: তথ্য Form */}

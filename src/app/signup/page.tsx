@@ -1,18 +1,86 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { FormEvent } from "react";
 import { authClient } from "@/lib/auth-client";
 import { getAuthErrorMessage } from "@/lib/auth-errors";
 import toast from "react-hot-toast";
+import { Upload, X } from "lucide-react";
 
 function SignUpContent() {
   const router = useRouter();
 
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string>("");
+  const [imageUrl, setImageUrl] = useState<string>("");
+  const [useUrlMode, setUseUrlMode] = useState<boolean>(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("অনুগ্রহ করে একটি সঠিক ইমেজ ফাইল নির্বাচন করুন (JPG, PNG, WebP)");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("ছবির সাইজ সর্বোচ্চ ৫ মেগাবাইট হতে পারবে");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const result = event.target?.result as string;
+      const img = new Image();
+      img.onload = () => {
+        // Optimize avatar image using canvas for snappy loading and storage
+        const canvas = document.createElement("canvas");
+        const maxDim = 400;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxDim) {
+            height = Math.round((height * maxDim) / width);
+            width = maxDim;
+          }
+        } else {
+          if (height > maxDim) {
+            width = Math.round((width * maxDim) / height);
+            height = maxDim;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          setImagePreview(canvas.toDataURL("image/jpeg", 0.85));
+        } else {
+          setImagePreview(result);
+        }
+      };
+      img.onerror = () => {
+        setImagePreview(result);
+      };
+      img.src = result;
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleRemoveImage = () => {
+    setImagePreview("");
+    setImageUrl("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -22,7 +90,7 @@ function SignUpContent() {
 
     const name = String(form.get("name") ?? "").trim();
     const email = String(form.get("email") ?? "").trim();
-    const image = String(form.get("image") ?? "").trim();
+    const finalImage = useUrlMode ? imageUrl.trim() : imagePreview;
     const password = String(form.get("password") ?? "");
     const confirmPassword = String(form.get("confirmPassword") ?? "");
 
@@ -54,7 +122,7 @@ function SignUpContent() {
         name,
         email,
         password,
-        image: image || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}`,
+        image: finalImage || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}`,
         callbackURL: "/signin",
       });
 
@@ -148,19 +216,120 @@ function SignUpContent() {
           />
         </div>
 
-        {/* Image URL (Optional) */}
+        {/* Profile Image Upload */}
         <div>
-          <label htmlFor="image" className="mb-2 block text-sm font-medium">
-            প্রোফাইল ছবি (URL - ঐচ্ছিক)
-          </label>
+          <div className="mb-2 flex items-center justify-between">
+            <label className="block text-sm font-medium">
+              প্রোফাইল ছবি <span className="text-xs font-normal text-[#4a5f50]">(ঐচ্ছিক)</span>
+            </label>
+            <button
+              type="button"
+              onClick={() => {
+                setUseUrlMode(!useUrlMode);
+                setImagePreview("");
+                setImageUrl("");
+                if (fileInputRef.current) fileInputRef.current.value = "";
+              }}
+              className="text-xs font-medium text-[#1f7a4d] hover:underline cursor-pointer"
+            >
+              {useUrlMode ? "ছবি আপলোড করুন" : "বা ছবির লিংক দিন"}
+            </button>
+          </div>
 
-          <input
-            id="image"
-            name="image"
-            type="url"
-            placeholder="https://example.com/avatar.jpg"
-            className={inputClass}
-          />
+          {!useUrlMode ? (
+            <div>
+              <input
+                ref={fileInputRef}
+                type="file"
+                id="profile-image-upload"
+                accept="image/*"
+                onChange={handleImageFileChange}
+                className="hidden"
+              />
+
+              {imagePreview ? (
+                <div className="flex items-center gap-3 rounded-xl border border-[#d3ddd0] bg-white p-3 shadow-2xs">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={imagePreview}
+                    alt="প্রোফাইল ছবি প্রিভিউ"
+                    className="h-14 w-14 rounded-xl object-cover border border-[#d3ddd0]"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs font-semibold text-[#17301f]">
+                      ছবি সংযুক্ত হয়েছে
+                    </p>
+                    <p className="text-[11px] text-[#4a5f50]">
+                      প্রোফাইল ছবি হিসেবে সেভ হবে
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="rounded-lg border border-[#d3ddd0] bg-[#fafcf9] px-2.5 py-1.5 text-xs font-medium text-[#17301f] transition hover:bg-[#f0f4ee] cursor-pointer"
+                    >
+                      পরিবর্তন
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleRemoveImage}
+                      className="rounded-lg border border-red-200 bg-red-50 p-1.5 text-red-600 transition hover:bg-red-100 cursor-pointer"
+                      title="ছবি মুছুন"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="group flex cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-[#d3ddd0] bg-white p-5 text-center transition hover:border-[#1f7a4d] hover:bg-[#fafcf9]"
+                >
+                  <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-[#f0f4ee] text-[#1f7a4d] transition group-hover:bg-[#1f7a4d] group-hover:text-white">
+                    <Upload className="h-5 w-5" />
+                  </div>
+                  <p className="text-sm font-semibold text-[#17301f]">
+                    ক্লিক করে ছবি আপলোড করুন
+                  </p>
+                  <p className="mt-0.5 text-xs text-[#8b998d]">
+                    PNG, JPG, WebP (সর্বোচ্চ ৫ MB)
+                  </p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div>
+              <input
+                id="image"
+                name="image"
+                type="url"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="https://example.com/avatar.jpg"
+                className={inputClass}
+              />
+              {imageUrl && (
+                <div className="mt-2 flex items-center gap-3 rounded-xl border border-[#e3eae0] bg-white p-2">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={imageUrl}
+                    alt="প্রিভিউ"
+                    onError={() => toast.error("ছবির লিংকটি সঠিক নয়")}
+                    className="h-10 w-10 rounded-lg object-cover border border-[#d3ddd0]"
+                  />
+                  <span className="truncate text-xs text-[#4a5f50]">লিংক প্রিভিউ</span>
+                  <button
+                    type="button"
+                    onClick={() => setImageUrl("")}
+                    className="ml-auto text-xs font-medium text-red-500 hover:underline cursor-pointer"
+                  >
+                    মুছুন
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Password */}
