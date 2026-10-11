@@ -1,7 +1,7 @@
 import { Product, Category } from "@/types";
 
-const PRIMARY_API_URL = "https://api.api-store.workers.dev/api/bazardor";
-const FALLBACK_API_URL = "https://api.abcz.workers.dev/api/bazardor";
+const PRIMARY_API_URL = "https://openapi.programming-hero.com/api/bazardor";
+const FALLBACK_API_URL = "https://openapi.programming-hero.com/api/bazardor";
 
 async function fetchFromApi<T>(endpoint: string): Promise<T> {
   const envUrl = process.env.NEXT_PUBLIC_API_URL;

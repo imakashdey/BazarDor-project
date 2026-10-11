@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { FormEvent } from "react";
@@ -16,9 +16,11 @@ function SignInContent() {
 
   const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const authToastShownRef = useRef(false);
 
   useEffect(() => {
-    if (reason === "auth_required") {
+    if (reason === "auth_required" && !authToastShownRef.current) {
+      authToastShownRef.current = true;
       toast("পণ্যের বিস্তারিত ও বিশেষ তথ্য দেখতে সাইন ইন প্রয়োজন", {
         icon: "🔒",
         duration: 4000,

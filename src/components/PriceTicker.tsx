@@ -13,12 +13,8 @@ const PriceTicker = async () => {
 
   return (
     <div className="border-b border-gray-200 bg-gray-50/80 text-gray-900 py-1.5 overflow-hidden">
-      <div className="mx-auto flex max-w-7xl items-center px-4">
-        <div className="hidden sm:flex shrink-0 items-center gap-1.5 pr-4 border-r border-gray-300 font-bold text-xs text-emerald-800 uppercase tracking-wide">
-          <span className="inline-block h-2 w-2 rounded-full bg-emerald-600 animate-ping"></span>
-          <span>বাজার আপডেট:</span>
-        </div>
-
+      <div className="flex  items-center px-4">
+        
         <div className="flex-1 overflow-hidden">
           <MarqueeText
             className="py-1"

@@ -14,18 +14,7 @@ function CategoryNavList({ categories }: CategoryNavProps) {
 
   return (
     <div className="mx-auto flex max-w-7xl items-center gap-2 overflow-x-auto px-4 py-2.5 sm:px-6 scrollbar-none">
-      <Link
-        href="/"
-        className={`flex shrink-0 items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold transition-all ${
-          pathname === "/"
-            ? "bg-emerald-700 text-white shadow-xs"
-            : "text-gray-700 hover:bg-emerald-50 hover:text-emerald-800"
-        }`}
-      >
-        <span>🏠</span>
-        <span>সব পণ্য</span>
-      </Link>
-
+      
       {categories.map((category) => {
         const isActive =
           pathname === `/category/${category.slug}` ||
