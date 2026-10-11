@@ -78,14 +78,14 @@ const Header = () => {
 
   return (
     <header className="border-b border-gray-200 bg-white">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-3 py-2.5 sm:gap-4 sm:px-4 sm:py-3">
 
         {/* Logo + Title + Date */}
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           <Link
             href="/"
             aria-label="বাজার দর"
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[#1f7a4d] text-2xl text-white shadow-xs sm:h-14 sm:w-14 sm:text-3xl"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#1f7a4d] text-xl text-white shadow-xs sm:h-12 sm:w-12 sm:rounded-2xl sm:text-2xl"
           >
             🛒
           </Link>
@@ -93,19 +93,19 @@ const Header = () => {
           <div className="min-w-0">
   <Link
     href="/"
-    className="block text-xl font-black leading-snug text-gray-900 transition-colors hover:text-[#1f7a4d] sm:text-2xl"
+    className="block truncate text-lg font-black leading-snug text-gray-900 transition-colors hover:text-[#1f7a4d] sm:text-xl lg:text-2xl"
   >
     বাজার দর
   </Link>
 
-  <p className="mt-0.5 text-xs font-medium leading-5 text-gray-500 sm:text-[13px]">
+  <p className="mt-0.5 max-w-[140px] truncate text-[10px] font-medium leading-4 text-gray-500 sm:max-w-none sm:text-[13px] sm:leading-5">
     {date || "তারিখ লোড হচ্ছে..."}
   </p>
 </div>
         </div>
 
         {/* Right Side: Auth Buttons / Profile Dropdown */}
-        <div className="flex items-center gap-2 text-[14px] sm:gap-3">
+        <div className="flex shrink-0 items-center gap-1.5 text-[13px] sm:gap-2 sm:text-[14px]">
 
           {isPending ? (
             <div className="flex items-center gap-2">
@@ -122,7 +122,7 @@ const Header = () => {
                 }
                 aria-expanded={isDropdownOpen}
                 aria-label="প্রোফাইল মেনু"
-                className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-[#d3ddd0] bg-[#fafcf9] px-3 py-1.5 text-sm font-semibold text-[#17301f] transition hover:bg-[#f0f4ee] focus:outline-none focus:ring-2 focus:ring-[#1f7a4d]/20"
+                className="flex cursor-pointer items-center gap-1.5 rounded-lg border border-[#d3ddd0] bg-[#fafcf9] px-2 py-1 text-[13px] font-semibold text-[#17301f] transition hover:bg-[#f0f4ee] focus:outline-none focus:ring-2 focus:ring-[#1f7a4d]/20 sm:gap-2.5 sm:rounded-xl sm:px-3 sm:py-1.5 sm:text-sm"
               >
                 {user.image ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -137,7 +137,7 @@ const Header = () => {
                   </div>
                 )}
 
-                <span className="max-w-[120px] truncate font-semibold sm:max-w-[150px]">
+                <span className="max-w-[70px] truncate font-semibold sm:max-w-[120px] lg:max-w-[150px]">
                   {user.name || "ব্যবহারকারী"}
                 </span>
 
@@ -150,7 +150,7 @@ const Header = () => {
 
               {/* Dropdown Menu */}
               {isDropdownOpen && (
-                <div className="animate-in fade-in slide-in-from-top-2 absolute right-0 z-50 mt-2 w-64 rounded-2xl border border-[#e3eae0] bg-white p-2 shadow-lg duration-150">
+                <div className="animate-in fade-in slide-in-from-top-2 absolute right-0 z-50 mt-2 w-56 rounded-2xl border border-[#e3eae0] bg-white p-2 shadow-lg duration-150 sm:w-64">
 
                   {/* User Details */}
                   <div className="mb-1 flex items-center gap-3 rounded-xl bg-[#f0f4ee] p-3">
@@ -210,14 +210,14 @@ const Header = () => {
             <div className="flex items-center gap-2">
               <Link
                 href="/signin"
-                className="rounded-xl px-3.5 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
+                className="rounded-lg px-2.5 py-1.5 text-[13px] font-semibold text-gray-700 transition hover:bg-gray-100 sm:rounded-xl sm:px-3.5 sm:py-2 sm:text-sm"
               >
                 সাইন ইন
               </Link>
 
               <Link
                 href="/signup"
-                className="rounded-xl bg-[#1f7a4d] px-4 py-2 text-sm font-semibold text-white shadow-2xs transition hover:bg-[#186340]"
+                className="rounded-lg bg-[#1f7a4d] px-3 py-1.5 text-[13px] font-semibold text-white shadow-2xs transition hover:bg-[#186340] sm:rounded-xl sm:px-4 sm:py-2 sm:text-sm"
               >
                 সাইন আপ
               </Link>
