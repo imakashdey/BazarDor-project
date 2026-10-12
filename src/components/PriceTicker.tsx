@@ -20,7 +20,7 @@ const PriceTicker = async () => {
             className="py-1"
             duration={35}
             direction="left"
-            pauseOnHover={true}
+            pauseOnHover={false}
           >
             <div className="flex items-center">
               {products.map((product) => {
